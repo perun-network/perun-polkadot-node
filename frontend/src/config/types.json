@@ -1,0 +1,4 @@
+{
+    "FundingIdOf": "[u8; 32]",
+    "ChannelIdOf": "[u8; 32]"
+}
