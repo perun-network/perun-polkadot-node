@@ -1,0 +1,39 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+  SKIP_WASM_BUILD: 1
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - uses: Swatinem/rust-cache@v1
+        name: Setup Cache
+
+      - uses: actions-rs/cargo@v1
+        name: Build
+        with:
+          command: build
+          args: --manifest-path node/Cargo.toml -q --all-targets --all-features
+
+      - uses: actions-rs/cargo@v1
+        name: Integration tests
+        with:
+          command: test
+          args: --manifest-path node/Cargo.toml -p pallet-perun --all-features
