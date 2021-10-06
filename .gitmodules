@@ -1,0 +1,3 @@
+[submodule "node/pallets/pallet-perun"]
+	path = node/pallets/pallet-perun
+	url = https://github.com/perun-network/perun-polkadot-pallet
