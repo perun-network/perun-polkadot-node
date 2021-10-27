@@ -1,0 +1,38 @@
+name: Rust
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: node
+
+      - uses: actions-rs/cargo@v1
+        name: Build
+        with:
+          # Build the benchmarks with the arguments from the README.
+          command: build
+          args: --manifest-path node/Cargo.toml -q --features runtime-benchmarks --release
+
+      - name: Benchmark
+        # Run with the arguments from the README.
+        run: node/target/release/node-template --execution wasm --wasm-execution compiled --chain dev --pallet 'pallet_perun' --extrinsic '*' --steps 10 --repeat 20 --raw --output weights.rs
+
+      - name: Check Weights
+        run: |
+          diff -q weights.rs pallets/pallet-perun/src/weights.rs || \
+          (echo "Weights of the pallet need to be updated"; exit 1)
