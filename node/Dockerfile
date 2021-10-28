@@ -1,12 +1,23 @@
-FROM paritytech/ci-linux:production
+FROM paritytech/ci-linux:production as build
 
-WORKDIR /var/www/node-template
+WORKDIR /code
 COPY . .
-RUN cargo build
+RUN cargo build --release
 
 FROM ubuntu:20.04
+WORKDIR /node
 
-WORKDIR /bin
+# Copy the node binary.
+COPY --from=build /code/target/release/node-template .
+
+# Install root certs, see: https://github.com/paritytech/substrate/issues/9984
+RUN apt update && \
+	apt install -y ca-certificates && \
+	update-ca-certificates && \
+	apt remove ca-certificates -y && \
+	rm -rf /var/lib/apt/lists/*
+
 EXPOSE 9944
-COPY --from=0 /var/www/node-template/target/debug/node-template .
-CMD [ "./node-template", "--dev", "--tmp", "--ws-external" ]
+# Exposing unsafe RPC methods is needed for testing but should not be done in
+# production.
+CMD [ "./node-template", "--dev", "--ws-external", "--rpc-methods=Unsafe" ]
