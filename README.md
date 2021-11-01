@@ -52,16 +52,8 @@ This is currently not very practical since hashes and off-chain signatures are r
 
 ### Manual compilation
 
-If you want to compile the source directly, you will need to adjust your rust toolchain:  
-
-```bash
-rustup default stable
-rustup update nightly
-rustup update stable
-rustup target add wasm32-unknown-unknown --toolchain nightly
-```
-
-…then build + start the backend it with:
+Head over to the [Installing the Rust toolchain](#installing-the-rust-toolchain) section,
+then build + start the backend with:
 
 ```bash
 cd node
@@ -75,6 +67,26 @@ yarn start
 ```
 
 This should automatically open your browser with [localhost:8000/substrate-front-end-template].
+
+### Benchmarking
+This node provides a runtime for benchmarking the [Perun Pallet]. You will need to have [Rust installed](#installing-the-rust-toolchain) as described below.  
+Enter the `node/` directory and run the following command:
+```sh
+cargo run --release --features runtime-benchmarks benchmark --execution wasm --wasm-execution compiled --chain dev --pallet 'pallet_perun' --extrinsic '*' --steps 20 --repeat 10 --raw --output pallets/pallet-perun/src/weights.rs
+```
+
+This will write the updated weights into the `weights.rs` file of the pallet.  
+More information can be found in the [Substrate Benchmarking Doc].
+
+### Installing the Rust toolchain
+Check out [rust-land.org] to install `rustup`, then adjust your toolchain for this repo:  
+
+```bash
+rustup default stable
+rustup update nightly
+rustup update stable
+rustup target add wasm32-unknown-unknown --toolchain nightly
+```
 
 ## Funding
 
@@ -101,6 +113,7 @@ Use of the source code is governed by the Apache 2.0 license that can be found i
 [Perun Pallet]: https://github.com/perun-network/perun-polkadot-pallet
 [node template]: https://github.com/substrate-developer-hub/substrate-node-template
 [frontend template]: https://github.com/substrate-developer-hub/substrate-front-end-template
+[Substrate Benchmarking Doc]: https://docs.substrate.io/v3/runtime/benchmarking/
 [src/config/types.json]: frontend/src/config/types.json
 [runtime/Cargo.toml]: node/runtime/Cargo.toml
 [runtime/src/lib.rs]: node/runtime/src/lib.rs#L280
@@ -108,6 +121,7 @@ Use of the source code is governed by the Apache 2.0 license that can be found i
 [Open Grant]: https://github.com/perun-network/Open-Grants-Program/blob/master/applications/perun_channels.md#w3f-open-grant-proposal
 [Web3 Foundation]: https://web3.foundation/about/
 [Open Grants Program]: https://github.com/w3f/Open-Grants-Program#open-grants-program-
+[rust-land.org]: https://www.rust-lang.org/tools/install
 
 <!-- markdown-link-check-disable -->
 [localhost:8000/substrate-front-end-template]: http://localhost:8000/substrate-front-end-template

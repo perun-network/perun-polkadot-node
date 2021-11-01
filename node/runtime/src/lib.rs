@@ -21,7 +21,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
 };
-use sp_std::prelude::*;
+use sp_std::{prelude::*, ops::Range};
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
@@ -272,6 +272,7 @@ impl pallet_sudo::Config for Runtime {
 parameter_types! {
 	pub const PerunPalletId: PalletId = PalletId(*b"prnstchs");
 	pub const PerunMinDeposit: Balance = 10;
+	pub const PerunParticipantNum: Range<u32> = 1..256;
 }
 
 /// Configure the Perun pallet.
@@ -279,6 +280,7 @@ impl pallet_perun::Config for Runtime {
 	type Event = Event;
 	type PalletId = PerunPalletId;
 	type MinDeposit = PerunMinDeposit;
+	type ParticipantNum = PerunParticipantNum;
 	type Currency = Balances;
 	type Version = u64;
 	type Nonce = [u8; 32];
@@ -287,6 +289,7 @@ impl pallet_perun::Config for Runtime {
 	type Seconds = u64;
 	type PK = sp_core::sr25519::Public;
 	type Signature = sp_core::sr25519::Signature;
+	type WeightInfo = ();
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -482,8 +485,7 @@ impl_runtime_apis! {
 			list_benchmark!(list, extra, frame_system, SystemBench::<Runtime>);
 			list_benchmark!(list, extra, pallet_balances, Balances);
 			list_benchmark!(list, extra, pallet_timestamp, Timestamp);
-			// No benchmarks currently supported.
-			//list_benchmark!(list, extra, pallet_template, TemplateModule);
+			list_benchmark!(list, extra, pallet_perun, PerunModule);
 
 			let storage_info = AllPalletsWithSystem::storage_info();
 
@@ -517,8 +519,7 @@ impl_runtime_apis! {
 			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
 			add_benchmark!(params, batches, pallet_balances, Balances);
 			add_benchmark!(params, batches, pallet_timestamp, Timestamp);
-			// Benchmarks are currently not supported.
-			// add_benchmark!(params, batches, pallet_template, TemplateModule);
+			add_benchmark!(params, batches, pallet_perun, PerunModule);
 
 			if batches.is_empty() { return Err("Benchmark not found for this pallet.".into()) }
 			Ok(batches)
