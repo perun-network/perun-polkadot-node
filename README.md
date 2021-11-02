@@ -9,8 +9,9 @@
    <a href="https://github.com/perun-network/perun-polkadot-node/actions/workflows/rust.yml"><img src="https://github.com/perun-network/perun-polkadot-node/actions/workflows/rust.yml/badge.svg"></a>
 </p>
 
-*Perun Polkadot Nodes* demonstrates how to integrate the [Perun Pallet] into  substrate chain.  
-It uses the Node and Frontend templates from substrate and configures them for Perun.
+*Perun Polkadot Node* demonstrates how to integrate the [Perun Pallet] into a substrate chain.  
+It uses the [Node template] and [Frontend template] from substrate and configures them for Perun.
+
 ## Repo Structure
 
 * `frontend/` based on [frontend template]
@@ -20,28 +21,17 @@ It uses the Node and Frontend templates from substrate and configures them for P
   * [runtime/Cargo.toml] configures the Node
   * [runtime/src/lib.rs] configures the *Perun Pallet*
 
-## Usage
 
-You can either use docker or compile it manually.  
-In both cases you need to clone the repo with:  
-```bash
-git clone --recurse-submodules https://github.com/perun-network/perun-polkadot-node
-cd perun-polkadot-node
-```
+## Quickstart
 
-### Docker
-
-You can use docker to start the back- and front end to try out the *Perun Pallet*.
+You can use docker to start the *node* and the *frontend* to try out the *Perun Pallet*.
 
 ```bash
-docker-compose build # This will take some time
+docker-compose build
 docker-compose up
 ```
 
-<!-- markdown-link-check-disable -->
-The frontend will be online at http://172.18.0.2:8000/substrate-front-end-template.  
-The IP can be different if you have other docker containers running. Look into the console to find it.
-<!-- markdown-link-check-enable -->
+The frontend will be available at [localhost:8000/substrate-front-end-template].  
 
 <p align="center">
 <a href=".assets/pallet_perun.png"><img src=".assets/pallet_perun.png" width="100%"></a>
@@ -50,7 +40,42 @@ The IP can be different if you have other docker containers running. Look into t
 You can try out different Extrinsic calls in the *Pallet Interactor*.  
 This is currently not very practical since hashes and off-chain signatures are required, which are hard to enter manually. Using mocked hashes and sigs could be done here.
 
-### Manual compilation
+### Docker images
+
+Instead of building the project yourself, you can use our images and start them individually:  
+```sh
+docker run --rm -it -p9944:9944 ghcr.io/perun-network/polkadot-test-node
+```
+```sh
+docker run --rm -it -p8000:8000 ghcr.io/perun-network/polkadot-test-frontend
+```
+The frontend will be available at [localhost:8000/substrate-front-end-template].  
+
+## Development
+
+Compilation can be done either with a local Rust installation or in Docker.  
+In both cases you need to clone the repo with:  
+```bash
+git clone --recurse-submodules https://github.com/perun-network/perun-polkadot-node
+cd perun-polkadot-node
+```
+
+### Docker
+
+The project uses the standard Docker workflow. You can run:
+```sh
+docker-compose build
+```
+to build both sub-projects, or compile them individually with:  
+```sh
+docker build -t polkadot-test-node node/
+docker build -t polkadot-test-frontend frontend/
+```
+You can then use the commands from the [Docker images](#docker-images) section and remove the `ghcr.io/perun-network/` prefix from them to run your local images.  
+Building the images yourself uses a lot of resources. Depending on your OS, you may
+need to increase the allocated resources.  
+
+### Local toolchain
 
 Head over to the [Installing the Rust toolchain](#installing-the-rust-toolchain) section,
 then build + start the backend with:
@@ -68,7 +93,8 @@ yarn start
 
 This should automatically open your browser with [localhost:8000/substrate-front-end-template].
 
-### Benchmarking
+## Benchmarking
+
 This node provides a runtime for benchmarking the [Perun Pallet]. You will need to have [Rust installed](#installing-the-rust-toolchain) as described below.  
 Enter the `node/` directory and run the following command:
 ```sh
@@ -79,6 +105,7 @@ This will write the updated weights into the `weights.rs` file of the pallet.
 More information can be found in the [Substrate Benchmarking Doc].
 
 ### Installing the Rust toolchain
+
 Check out [rust-land.org] to install `rustup`, then adjust your toolchain for this repo:  
 
 ```bash
