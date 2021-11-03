@@ -1,4 +1,5 @@
 FROM node:slim
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 WORKDIR /src
 COPY . .
