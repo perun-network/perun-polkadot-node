@@ -44,7 +44,7 @@ pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
 /// Import the template pallet.
-pub use pallet_perun;
+pub use pallet_perun::{pallet::Config, types::{AppRegistry, ParamsOf, StateOf, ParticipantIndex}};
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -273,6 +273,23 @@ parameter_types! {
 	pub const PerunPalletId: PalletId = PalletId(*b"prnstchs");
 	pub const PerunMinDeposit: Balance = 10;
 	pub const PerunParticipantNum: Range<u32> = 1..256;
+	pub NoApp: sp_core::sr25519::Public = sp_core::sr25519::Public::default();
+}
+
+pub struct DefaultAppRegistry {}
+impl AppRegistry<Runtime> for DefaultAppRegistry {
+	fn valid_transition(
+		_params: &ParamsOf<Runtime>,
+		_from: &StateOf<Runtime>,
+		_to: &StateOf<Runtime>,
+		_signer: ParticipantIndex,
+	) -> bool {
+		return true;
+	}
+
+	fn transition_weight(_params: &ParamsOf<Runtime>) -> Weight {
+		return 0;
+	}
 }
 
 /// Configure the Perun pallet.
@@ -290,6 +307,9 @@ impl pallet_perun::Config for Runtime {
 	type PK = sp_core::sr25519::Public;
 	type Signature = sp_core::sr25519::Signature;
 	type WeightInfo = ();
+	type AppRegistry = DefaultAppRegistry;
+	type AppId = Self::PK;
+	type NoApp = NoApp;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
