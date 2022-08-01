@@ -70,7 +70,7 @@ cargo build --release
 For testing, run the compiled node binary as follows.
 ```sh
 cd node/target/release
-./node-template --dev --ws-external --rpc-methods=Unsafe
+./node-template --dev --ws-external --rpc-methods=Unsafe -lruntime=debug
 ```
 
 You can start the frontend in a second terminal.
@@ -81,6 +81,14 @@ yarn start
 ```
 
 This should automatically open your browser with [localhost:8000/substrate-front-end-template].
+
+### Logging
+
+In the node, you can print log messages using `frame_support::runtime_print`.
+```
+frame_support::runtime_print!("CustomValue: {:?}", val);
+```
+In order to see the log messages, make sure to run the node with `-lruntime=debug`.
 
 ### Benchmarking
 
