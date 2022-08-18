@@ -21,7 +21,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
 };
-use sp_std::{prelude::*, ops::Range};
+use sp_std::{ops::Range, prelude::*};
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
@@ -44,7 +44,10 @@ pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
 /// Import the Perun pallet.
-pub use pallet_perun::{pallet::Config, types::{AppRegistry, ParamsOf, StateOf, ParticipantIndex}};
+pub use pallet_perun::{
+	pallet::Config,
+	types::{AppRegistry, ParamsOf, ParticipantIndex, StateOf},
+};
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -113,7 +116,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 /// up by `pallet_aura` to implement `fn slot_duration()`.
 ///
 /// Change this to adjust the block time.
-pub const MILLISECS_PER_BLOCK: u64 = 5000;
+pub const MILLISECS_PER_BLOCK: u64 = 3000;
 
 // NOTE: Currently it is not possible to change the slot duration after the chain has started.
 //       Attempting to do so will brick block production.
@@ -286,15 +289,13 @@ impl AppRegistry<Runtime> for DefaultAppRegistry {
 		to: &StateOf<Runtime>,
 		signer: ParticipantIndex,
 	) -> bool {
-		let tic_tac_toe = sp_core::sr25519::Public::from_raw([194, 178, 82, 161, 217, 193, 66, 118, 227, 183, 40, 239, 146, 114, 43, 169, 146, 208, 93, 138, 131, 186, 127, 33, 137, 232, 123, 45, 198, 48, 83, 41]);
+		let tic_tac_toe = sp_core::sr25519::Public::from_raw([
+			194, 178, 82, 161, 217, 193, 66, 118, 227, 183, 40, 239, 146, 114, 43, 169, 146, 208,
+			93, 138, 131, 186, 127, 33, 137, 232, 123, 45, 198, 48, 83, 41,
+		]);
 		if params.app.into_account() == tic_tac_toe {
 			frame_support::runtime_print!("PerunPallet:ValidTransition: tic tac toe app");
-			return app::valid_transition::<Runtime>(
-				params,
-				from,
-				to,
-				signer,
-			);
+			return app::valid_transition::<Runtime>(params, from, to, signer);
 		}
 		frame_support::runtime_print!("PerunPallet:ValidTransition: different app");
 		return false;
