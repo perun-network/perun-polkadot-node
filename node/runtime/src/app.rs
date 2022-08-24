@@ -82,13 +82,13 @@ fn compute_next_balances<T: Config>(balances: &[BalanceOf<T>], actor: usize, is_
 	let num_parts = balances.len();
 	let draw_bal = total / BalanceOf::<T>::from(u16::try_from(num_parts).unwrap());
 	let mut next_bals = Vec::<BalanceOf::<T>>::with_capacity(num_parts);
-	for p in 0..next_bals.len() {
+	for p in 0..num_parts {
 		if is_final && !has_winner {
-			next_bals[p] = draw_bal.clone();
+			next_bals.push(draw_bal.clone());
 		} else if has_winner && winner == p || actor == p {
-			next_bals[p] = total.clone();
+			next_bals.push(total.clone());
 		} else {
-			next_bals[p] = BalanceOf::<T>::default();
+			next_bals.push(BalanceOf::<T>::default());
 		}
 	}
 	next_bals
