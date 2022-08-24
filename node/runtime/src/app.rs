@@ -4,7 +4,7 @@ use pallet_perun::{
 	pallet::Config,
 	types::{BalanceOf, ParamsOf, ParticipantIndex, StateOf},
 };
-use sp_std::convert::TryFrom;
+use sp_std::{convert::TryFrom, vec::Vec};
 
 macro_rules! require {
 	($x:expr) => {
@@ -71,14 +71,31 @@ pub fn valid_transition<T: Config>(
 	require!(to.finalized == is_final);
 
 	// Check balances.
-	let mut expected_balances = from.balances.clone();
-	if has_winner {
-		let loser: usize = 1 - winner;
-		expected_balances[winner] = from.balances[winner] + from.balances[loser];
-		expected_balances[loser] = BalanceOf::<T>::default();
-	}
+	let actor_usize = usize::try_from(actor).unwrap();
+	let expected_balances = compute_next_balances::<T>(&from.balances, actor_usize, has_winner, winner);
 	require!(to.balances == expected_balances);
 	return true;
+}
+
+fn compute_next_balances<T: Config>(balances: &[BalanceOf<T>], actor: usize, has_winner: bool, winner: usize) -> Vec::<BalanceOf::<T>> {
+	let total = accumulate_balances::<T>(balances);
+	let mut next_bals = Vec::<BalanceOf::<T>>::with_capacity(balances.len());
+	for p in 0..next_bals.len() {
+		if has_winner && winner == p || actor == p {
+			next_bals[p] = total.clone();
+		} else {
+			next_bals[p] = BalanceOf::<T>::default();
+		}
+	}
+	next_bals
+}
+
+fn accumulate_balances<T: Config>(balances: &[BalanceOf<T>]) -> BalanceOf<T> {
+	let mut acc = BalanceOf::<T>::default();
+	for b in balances.iter() {
+		acc += *b;
+	}
+	return acc;
 }
 
 fn valid_value(v: u8) -> bool {
