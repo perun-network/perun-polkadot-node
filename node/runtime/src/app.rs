@@ -72,16 +72,20 @@ pub fn valid_transition<T: Config>(
 
 	// Check balances.
 	let actor_usize = usize::try_from(actor).unwrap();
-	let expected_balances = compute_next_balances::<T>(&from.balances, actor_usize, has_winner, winner);
+	let expected_balances = compute_next_balances::<T>(&from.balances, actor_usize, is_final, has_winner, winner);
 	require!(to.balances == expected_balances);
 	return true;
 }
 
-fn compute_next_balances<T: Config>(balances: &[BalanceOf<T>], actor: usize, has_winner: bool, winner: usize) -> Vec::<BalanceOf::<T>> {
+fn compute_next_balances<T: Config>(balances: &[BalanceOf<T>], actor: usize, is_final: bool, has_winner: bool, winner: usize) -> Vec::<BalanceOf::<T>> {
 	let total = accumulate_balances::<T>(balances);
-	let mut next_bals = Vec::<BalanceOf::<T>>::with_capacity(balances.len());
+	let num_parts = balances.len();
+	let draw_bal = total / BalanceOf::<T>::from(u16::try_from(num_parts).unwrap());
+	let mut next_bals = Vec::<BalanceOf::<T>>::with_capacity(num_parts);
 	for p in 0..next_bals.len() {
-		if has_winner && winner == p || actor == p {
+		if is_final && !has_winner {
+			next_bals[p] = draw_bal.clone();
+		} else if has_winner && winner == p || actor == p {
 			next_bals[p] = total.clone();
 		} else {
 			next_bals[p] = BalanceOf::<T>::default();
