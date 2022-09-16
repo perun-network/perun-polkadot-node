@@ -1,5 +1,6 @@
 {
 	"FundingIdOf": "[u8; 32]",
 	"ChannelIdOf": "[u8; 32]",
-	"Range": "(u32, u32)"
+	"Range": "(u32, u32)",
+	"AppId": "[u8; 32]"
 }
