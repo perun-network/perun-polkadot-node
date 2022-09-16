@@ -53,38 +53,27 @@ The frontend will be available at [localhost:8000/substrate-front-end-template].
 
 ## Development
 
-Compilation can be done either with a local Rust installation or in Docker.  
-In both cases you need to clone the repo with:  
+Clone the repository with submodules.  
 ```bash
 git clone --recurse-submodules https://github.com/perun-network/perun-polkadot-node
 cd perun-polkadot-node
 ```
 
-### Docker
-
-The project uses the standard Docker workflow. You can run:
-```sh
-docker-compose build
-```
-to build both sub-projects, or compile them individually with:  
-```sh
-docker build -t polkadot-test-node node/
-docker build -t polkadot-test-frontend frontend/
-```
-You can then use the commands from the [Docker images](#docker-images) section and remove the `ghcr.io/perun-network/` prefix from them to run your local images.  
-Building the images yourself uses a lot of resources. Depending on your OS, you may
-need to increase the allocated resources.  
-
-### Local toolchain
-
-Head over to the [Installing the Rust toolchain](#installing-the-rust-toolchain) section,
-then build + start the backend with:
+Ensure that the [Rust toolchain](#installing-the-rust-toolchain) is installed.
+Then build the node.
 
 ```bash
 cd node
-cargo run -- --dev --tmp
+cargo build --release
 ```
-and start the frontend in a second console:
+
+For testing, run the compiled node binary as follows.
+```sh
+cd node/target/release
+./node-template --dev --ws-external --rpc-methods=Unsafe -lruntime=debug
+```
+
+You can start the frontend in a second terminal.
 ```bash
 cd frontend
 yarn install
@@ -93,9 +82,17 @@ yarn start
 
 This should automatically open your browser with [localhost:8000/substrate-front-end-template].
 
-## Benchmarking
+### Logging
 
-This node provides a runtime for benchmarking the [Perun Pallet]. You will need to have [Rust installed](#installing-the-rust-toolchain) as described below.  
+In the node, you can print log messages using `frame_support::runtime_print`.
+```
+frame_support::runtime_print!("CustomValue: {:?}", val);
+```
+In order to see the log messages, make sure to run the node with `-lruntime=debug`.
+
+### Benchmarking
+
+This node provides a runtime for benchmarking the [Perun Pallet].
 Enter the `node/` directory and run the following command:
 ```sh
 cargo run --release --features runtime-benchmarks benchmark --execution wasm --wasm-execution compiled --chain dev --pallet 'pallet_perun' --extrinsic '*' --steps 20 --repeat 10 --raw --output pallets/pallet-perun/src/weights.rs
