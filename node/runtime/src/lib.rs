@@ -21,7 +21,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
 };
-use sp_std::{prelude::*, ops::Range};
+use sp_std::{ops::Range, prelude::*};
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
@@ -43,8 +43,11 @@ use pallet_transaction_payment::CurrencyAdapter;
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
-/// Import the template pallet.
-pub use pallet_perun::{pallet::Config, types::{AppRegistry, ParamsOf, StateOf, ParticipantIndex}};
+/// Import the Perun pallet.
+pub use pallet_perun::{
+	pallet::Config,
+	types::{AppRegistry, ParamsOf, ParticipantIndex, StateOf},
+};
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -113,7 +116,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 /// up by `pallet_aura` to implement `fn slot_duration()`.
 ///
 /// Change this to adjust the block time.
-pub const MILLISECS_PER_BLOCK: u64 = 500;
+pub const MILLISECS_PER_BLOCK: u64 = 3000;
 
 // NOTE: Currently it is not possible to change the slot duration after the chain has started.
 //       Attempting to do so will brick block production.
@@ -235,7 +238,7 @@ impl pallet_timestamp::Config for Runtime {
 }
 
 parameter_types! {
-	pub const ExistentialDeposit: u128 = 500;
+	pub const ExistentialDeposit: u128 = 0;
 	pub const MaxLocks: u32 = 50;
 }
 
@@ -276,15 +279,26 @@ parameter_types! {
 	pub NoApp: sp_core::sr25519::Public = sp_core::sr25519::Public::default();
 }
 
+mod app;
+
 pub struct DefaultAppRegistry {}
 impl AppRegistry<Runtime> for DefaultAppRegistry {
 	fn valid_transition(
-		_params: &ParamsOf<Runtime>,
-		_from: &StateOf<Runtime>,
-		_to: &StateOf<Runtime>,
-		_signer: ParticipantIndex,
+		params: &ParamsOf<Runtime>,
+		from: &StateOf<Runtime>,
+		to: &StateOf<Runtime>,
+		signer: ParticipantIndex,
 	) -> bool {
-		return true;
+		let tic_tac_toe = sp_core::sr25519::Public::from_raw([
+			194, 178, 82, 161, 217, 193, 66, 118, 227, 183, 40, 239, 146, 114, 43, 169, 146, 208,
+			93, 138, 131, 186, 127, 33, 137, 232, 123, 45, 198, 48, 83, 41,
+		]);
+		if params.app.into_account() == tic_tac_toe {
+			frame_support::runtime_print!("PerunPallet:ValidTransition: tic tac toe app");
+			return app::valid_transition::<Runtime>(params, from, to, signer);
+		}
+		frame_support::runtime_print!("PerunPallet:ValidTransition: different app");
+		return false;
 	}
 
 	fn transition_weight(_params: &ParamsOf<Runtime>) -> Weight {
