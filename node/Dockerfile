@@ -4,7 +4,7 @@ WORKDIR /code
 COPY . .
 RUN cargo build --release
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 WORKDIR /node
 
 # Copy the node binary.

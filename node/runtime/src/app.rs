@@ -1,5 +1,5 @@
 use codec::{Decode, Encode};
-use frame_support::RuntimeDebug;
+use frame_support::RuntimeDebugNoBound;
 use pallet_perun::{
 	pallet::Config,
 	types::{BalanceOf, ParamsOf, ParticipantIndex, StateOf},
@@ -19,7 +19,7 @@ const FIELD_EMPTY: u8 = 0;
 const FIELD_PLAYER1: u8 = 1;
 const FIELD_PLAYER2: u8 = 2;
 
-#[derive(Encode, Decode, Default, Clone, PartialEq, RuntimeDebug)]
+#[derive(Encode, Decode, Default, Clone, PartialEq, RuntimeDebugNoBound)]
 struct TicTacToeAppData {
 	pub next_actor: u8,
 	pub grid: [u8; 9],
