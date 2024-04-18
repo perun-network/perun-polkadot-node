@@ -3,7 +3,6 @@
 // Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-
 use pallet_grandpa::AuthorityId as GrandpaId;
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -11,7 +10,7 @@ use sp_core::{crypto::KeyTypeId, OpaqueMetadata, H256};
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	traits::{
-		BlakeTwo256, Block as BlockT, IdentifyAccount, Keccak256, NumberFor, One, Verify,
+		BlakeTwo256, Block as BlockT, IdentifyAccount, Keccak256, NumberFor, Verify,
 	},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
@@ -40,7 +39,7 @@ pub use frame_support::{
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
-use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier};
+use pallet_transaction_payment::{ CurrencyAdapter};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
@@ -119,7 +118,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 /// up by `pallet_aura` to implement `fn slot_duration()`.
 ///
 /// Change this to adjust the block time.
-pub const MILLISECS_PER_BLOCK: u64 = 100;
+pub const MILLISECS_PER_BLOCK: u64 = 500;
 
 // NOTE: Currently it is not possible to change the slot duration after the chain has started.
 //       Attempting to do so will brick block production.
@@ -236,17 +235,14 @@ impl pallet_balances::Config for Runtime {
 	type RuntimeFreezeReason = ();
 }
 
-parameter_types! {
-	pub FeeMultiplier: Multiplier = Multiplier::one();
-}
 
 impl pallet_transaction_payment::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
-	type OperationalFeeMultiplier = ConstU8<5>;
+	type OperationalFeeMultiplier = ConstU8<1>;
 	type WeightToFee = IdentityFee<Balance>;
 	type LengthToFee = IdentityFee<Balance>;
-	type FeeMultiplierUpdate = ConstFeeMultiplier<FeeMultiplier>;
+	type FeeMultiplierUpdate = ();
 }
 
 impl pallet_sudo::Config for Runtime {
@@ -272,13 +268,25 @@ impl AppRegistry<Runtime> for DefaultAppRegistry {
 		to: &StateOf<Runtime>,
 		signer: ParticipantIndex,
 	) -> bool {
+
 		let tic_tac_toe = sp_core::sr25519::Public::from_raw([
 			194, 178, 82, 161, 217, 193, 66, 118, 227, 183, 40, 239, 146, 114, 43, 169, 146, 208,
 			93, 138, 131, 186, 127, 33, 137, 232, 123, 45, 198, 48, 83, 41,
 		]);
+		
+		// This is a mock app for testing purposes only.
+		let mockapp  = sp_core::sr25519::Public::from_raw([
+			176, 115, 108, 113, 171, 155, 245, 248, 27, 234, 80, 36, 30, 145, 56, 217,
+			213, 25, 176, 99, 145, 198, 217, 248,
+			220, 159, 39, 241, 120, 209, 175, 8,
+		]);
 		if params.app.into_account() == tic_tac_toe {
 			frame_support::runtime_print!("PerunPallet:ValidTransition: tic tac toe app");
 			return app::valid_transition::<Runtime>(params, from, to, signer);
+		}
+		if params.app.into_account() == mockapp { // Mockapp automatically accepts all transitions.
+			frame_support::runtime_print!("PerunPallet:ValidTransition: mock app");
+			return true;
 		}
 		frame_support::runtime_print!("PerunPallet:ValidTransition: different app");
 		return false;
