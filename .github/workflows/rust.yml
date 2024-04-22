@@ -14,10 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-
+        
+      - name: Install protoc (Protocol Buffers compiler)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          export PROTOC=$(which protoc)
+          
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
