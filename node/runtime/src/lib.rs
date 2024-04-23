@@ -289,11 +289,11 @@ impl AppRegistry<Runtime> for DefaultAppRegistry {
 			return true;
 		}
 		frame_support::runtime_print!("PerunPallet:ValidTransition: different app");
-		return false;
+		false
 	}
 
 	fn transition_weight(_params: &ParamsOf<Runtime>) -> Weight {
-		return Weight::from_all(0);
+		Weight::from_all(0)
 	}
 }
 

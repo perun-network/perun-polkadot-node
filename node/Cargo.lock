@@ -4588,7 +4588,7 @@ checksum = "b93853da6d84c2e3c7d730d6473e8817692dd89be387eb01b94d7f108ecb5b8c"
 
 [[package]]
 name = "node-template"
-version = "0.0.0"
+version = "0.5.0"
 dependencies = [
  "clap",
  "frame-benchmarking-cli",
@@ -4631,7 +4631,7 @@ dependencies = [
 
 [[package]]
 name = "node-template-runtime"
-version = "0.0.0"
+version = "0.5.0"
 dependencies = [
  "frame-benchmarking",
  "frame-executive",
@@ -4938,7 +4938,6 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std 14.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?tag=polkadot-v1.9.0)",
- "syn 1.0.109",
 ]
 
 [[package]]
