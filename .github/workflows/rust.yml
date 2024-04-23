@@ -32,14 +32,7 @@ jobs:
         with:
           working-directory: node
 
-      - uses: actions-rs/cargo@v1
-        name: Build
-        with:
-          command: build
-          args: --manifest-path node/Cargo.toml -q --all-targets --all-features
-
-      - uses: actions-rs/cargo@v1
-        name: Integration tests
-        with:
-          command: test
-          args: --manifest-path node/Cargo.toml -p pallet-perun --all-features
+      - name: Build project and run integration tests
+        run: |
+          cargo build --manifest-path node/Cargo.toml --all-targets --all-features &&
+          cargo test --manifest-path node/Cargo.toml -p pallet-perun --all-features
